@@ -19,11 +19,14 @@ GOFLAGS := -mod=vendor
 default: driver
 
 driver:
-	GO111MODULE=on go build $(GOFLAGS) -o dist/dtle -ldflags \
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build $(GOFLAGS) -o dist/dtle -ldflags \
 "-X github.com/actiontech/dtle/g.Version=$(VERSION) \
 -X github.com/actiontech/dtle/g.GitCommit=$(COMMIT) \
 -X github.com/actiontech/dtle/g.GitBranch=$(BRANCH)" \
 		./cmd/nomad-plugin/main.go
+		 bash ../../workspace/quickStart/dtle/upload.sh
+		 scp ./dist/dtle root@10.186.61.19:~/dtle/dtle
+
 
 build_with_coverage_report: build-coverage-report-tool coverage-report-pre-build build coverage-report-post-build
 

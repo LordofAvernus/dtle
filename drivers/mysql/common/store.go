@@ -318,6 +318,21 @@ func GetPausedStatusFromConsul(storeManager *StoreManager, subject string) (bool
 	return isPaused, nil
 }
 
+func (sm *StoreManager) GetJobItem(jobId string) (*models.JobListItemV2, error) {
+	key := fmt.Sprintf("dtleJobList/%v", jobId)
+	kp, err := sm.consulStore.Get(key)
+	if nil != err && err != store.ErrKeyNotFound {
+		return nil, fmt.Errorf("get %v value from consul failed: %v", key, err)
+	}
+	job := new(models.JobListItemV2)
+	err = json.Unmarshal(kp.Value, job)
+	if err != nil {
+		return nil, fmt.Errorf("get %v from consul, unmarshal err : %v", key, err)
+	}
+
+	return job, nil
+}
+
 func (sm *StoreManager) FindJobList() ([]*models.JobListItemV2, error) {
 	key := "dtleJobList/"
 	kps, err := sm.consulStore.List(key)
